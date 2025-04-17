@@ -1,5 +1,5 @@
 eksctl create cluster \
-  --name cluster-primary \
+  --name cluster-one \
   --region us-west-2 \
   --nodegroup-name standard-workers \
   --node-type t3.medium \
