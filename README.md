@@ -119,7 +119,8 @@ Note the external IP — you’ll use it for replication in Cluster two.
 # Switch to cluster-two
 '''
 aws eks --region us-west-2 update-kubeconfig --name cluster-two
-
+'''
+'''
 helm install pg-standby bitnami/postgresql \
   --namespace postgres --create-namespace \
   --set architecture=standalone \
@@ -129,7 +130,8 @@ helm install pg-standby bitnami/postgresql \
   --set postgresql.replication.user=replicator \
   --set postgresql.replication.password=replpassword \
   --set auth.postgresPassword=supersecurepassword \
-  --set service.type=LoadBalancer'''
+  --set service.type=LoadBalancer
+ '''
 
 
 
