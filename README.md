@@ -88,39 +88,38 @@ For deploy one single PostgreSQL cluster whose nodes are distributed across two 
 We’ll use the Bitnami PostgreSQL Helm chart with replication enabled.
 
 ## 1. Add Bitnami Helm Repo (Once on your local machine)
-'''
+
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
-'''
+
 ## 2. Deploy Primary Cluster to Cluster one
 '''
 # Switch to cluster-one
-'''
+
 aws eks --region us-west-2 update-kubeconfig --name cluster-one
 
 helm install pg-ha bitnami/postgresql-ha \
   --namespace postgres --create-namespace \
   --set auth.postgresPassword=supersecurepassword \
   --set auth.replicationPassword=replpassword \
-  --set service.type=LoadBalancer '''
+  --set service.type=LoadBalancer 
   
 **This will create a highly available primary cluster with built-in replication between pods (within Cluster one only).**
 
 ## 3. Expose Primary Cluster's LoadBalancer
 
 Get the LoadBalancer IP:
-'''
+
 kubectl get svc -n postgres pg-ha-postgresql-ha-pgpool
-'''
+
 Note the external IP — you’ll use it for replication in Cluster two.
 
 ## 4. Deploy Standby (Replica) to Cluster two
 
 # Switch to cluster-two
-'''
+
 aws eks --region us-west-2 update-kubeconfig --name cluster-two
-'''
-'''
+
 helm install pg-standby bitnami/postgresql \
   --namespace postgres --create-namespace \
   --set architecture=standalone \
@@ -131,7 +130,7 @@ helm install pg-standby bitnami/postgresql \
   --set postgresql.replication.password=replpassword \
   --set auth.postgresPassword=supersecurepassword \
   --set service.type=LoadBalancer
- '''
+
 
 
 
