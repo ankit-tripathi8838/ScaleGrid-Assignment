@@ -65,4 +65,82 @@ kubectl get nodes
 kubectl config get-contexts
 kubectl config use-context <context-name>
 
+**we can also write Terraform module for the above tasks and add autoscaling & custom VPCs**
 
+
+
+# Deploy a single  Postgresql cluster with nodes running in the 2 Kubernetes clusters in a High Availability setup through helm charts ONLY.
+
+For deploy one single PostgreSQL cluster whose nodes are distributed across two separate Kubernetes clusters, with high availability (HA) — and using only Helm charts.
+
+## **Architecture**
+-Primary PostgreSQL cluster in Cluster one (active).
+-Read-only replica or standby cluster in Cluster two (passive).
+-Replication via WAL shipping or streaming replication.
+-Manual or external failover (Route53, external DNS, app logic).
+
+# Deployment Plan (Using Helm Charts Only)
+
+We’ll use the Bitnami PostgreSQL Helm chart with replication enabled.
+
+## 1. Add Bitnami Helm Repo (Once on your local machine)
+'''
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+'''
+## 2. Deploy Primary Cluster to Cluster one
+'''
+# Switch to cluster-one
+'''
+aws eks --region us-west-2 update-kubeconfig --name cluster-one
+
+helm install pg-ha bitnami/postgresql-ha \
+  --namespace postgres --create-namespace \
+  --set auth.postgresPassword=supersecurepassword \
+  --set auth.replicationPassword=replpassword \
+  --set service.type=LoadBalancer '''
+  
+**This will create a highly available primary cluster with built-in replication between pods (within Cluster one only).**
+
+## 3. Expose Primary Cluster's LoadBalancer
+
+Get the LoadBalancer IP:
+'''
+kubectl get svc -n postgres pg-ha-postgresql-ha-pgpool
+'''
+Note the external IP — you’ll use it for replication in Cluster two.
+
+## 4. Deploy Standby (Replica) to Cluster two
+
+# Switch to cluster-two
+'''
+aws eks --region us-west-2 update-kubeconfig --name cluster-two
+
+helm install pg-standby bitnami/postgresql \
+  --namespace postgres --create-namespace \
+  --set architecture=standalone \
+  --set postgresql.replicationMode=slave \
+  --set postgresql.primary.host=<external-ip-from-cluster-A> \
+  --set postgresql.primary.port=5432 \
+  --set postgresql.replication.user=replicator \
+  --set postgresql.replication.password=replpassword \
+  --set auth.postgresPassword=supersecurepassword \
+  --set service.type=LoadBalancer'''
+
+
+
+## Verify Replication
+Check logs in the standby node on Cluster 2:
+
+kubectl logs -l app.kubernetes.io/name=postgresql -n postgres
+
+
+## Failover Strategy (Manual or External)
+You’ll need to:
+
+Monitor primary health (e.g., with Prometheus).
+
+Redirect traffic (e.g., update Route53 or use external load balancer).
+
+Promote standby manually (pg_ctl promote) if primary fails.
+  
