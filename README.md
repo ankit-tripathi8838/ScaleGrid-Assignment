@@ -74,10 +74,14 @@ kubectl config use-context <context-name>
 For deploy one single PostgreSQL cluster whose nodes are distributed across two separate Kubernetes clusters, with high availability (HA) — and using only Helm charts.
 
 ## **Architecture**
--Primary PostgreSQL cluster in Cluster one (active).
--Read-only replica or standby cluster in Cluster two (passive).
--Replication via WAL shipping or streaming replication.
--Manual or external failover (Route53, external DNS, app logic).
+
+- Primary PostgreSQL cluster in Cluster one (active).
+
+- Read-only replica or standby cluster in Cluster two (passive).
+
+- Replication via WAL shipping or streaming replication.
+
+- Manual or external failover (Route53, external DNS).
 
 # Deployment Plan (Using Helm Charts Only)
 
