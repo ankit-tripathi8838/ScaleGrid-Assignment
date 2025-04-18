@@ -1,0 +1,7 @@
+aws eks --region us-west-2 update-kubeconfig --name cluster-one
+
+helm install pg-ha bitnami/postgresql-ha
+--namespace postgres --create-namespace
+--set auth.postgresPassword=supersecurepassword
+--set auth.replicationPassword=replpassword
+--set service.type=LoadBalancer
