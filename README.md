@@ -90,10 +90,11 @@ We’ll use the Bitnami PostgreSQL Helm chart with replication enabled.
 ## 1. Add Bitnami Helm Repo (Once on your local machine)
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
+
 helm repo update
 
 ## 2. Deploy Primary Cluster to Cluster one
-'''
+
 # Switch to cluster-one
 
 aws eks --region us-west-2 update-kubeconfig --name cluster-one
