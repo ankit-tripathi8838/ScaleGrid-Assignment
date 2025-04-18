@@ -1,0 +1,12 @@
+aws eks --region us-west-2 update-kubeconfig --name cluster-two
+
+helm install pg-standby bitnami/postgresql
+--namespace postgres --create-namespace
+--set architecture=standalone
+--set postgresql.replicationMode=slave
+--set postgresql.primary.host=
+--set postgresql.primary.port=5432
+--set postgresql.replication.user=replicator
+--set postgresql.replication.password=replpassword
+--set auth.postgresPassword=supersecurepassword
+--set service.type=LoadBalancer
